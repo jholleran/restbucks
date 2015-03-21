@@ -45,4 +45,15 @@ public class OrderController {
 		repository.save(order);
 		return "Saved order: ";
 	}
+	
+	@RequestMapping(value="order/{id}", method=RequestMethod.PUT)
+	@ResponseBody
+	public Order update(@PathVariable Long id, @RequestBody Order order) {
+		Order savedOrder = repository.getById(id);
+		if(savedOrder == null) {			
+			throw new OrderNotFoundException(id);
+		}
+		repository.update(id, order);
+		return order;
+	}
 }

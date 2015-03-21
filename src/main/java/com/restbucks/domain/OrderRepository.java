@@ -9,6 +9,8 @@ public interface OrderRepository {
 	
 	public List<Order> getAll();
 
-	public void save(Order animal);
+	public void save(Order order);
+	
+	public void update(Long id, Order order);
 
 }

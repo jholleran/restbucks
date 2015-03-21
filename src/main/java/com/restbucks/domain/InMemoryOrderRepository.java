@@ -45,4 +45,9 @@ public class InMemoryOrderRepository implements OrderRepository {
 		orders.put(new Long(orders.size()), order);
 	}
 
+	@Override
+	public void update(Long id, Order order) {
+		orders.put(id, order);
+	}
+
 }
