@@ -26,7 +26,11 @@ public class OrderController {
 	@RequestMapping("order/{id}")
 	@ResponseBody
 	public Order getById(@PathVariable Long id) {
-		return repository.getById(id);
+		Order order = repository.getById(id);
+		if(order == null) {
+			throw new OrderNotFoundException(id);
+		}
+		return order;
 	}
 	
 	@RequestMapping("order")
