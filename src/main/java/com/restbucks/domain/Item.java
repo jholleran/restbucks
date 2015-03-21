@@ -1,5 +1,9 @@
 package com.restbucks.domain;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name = "item")
 public class Item {
 
 	private String name;
@@ -17,11 +21,15 @@ public class Item {
 		this.size = size;
 		this.kind = kind;
 	}
+	
+	public Item() {
+	}
 
 	public String getName() {
 		return name;
 	}
 
+	@XmlElement
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -30,6 +38,7 @@ public class Item {
 		return quantity;
 	}
 
+	@XmlElement
 	public void setQuantity(String quantity) {
 		this.quantity = quantity;
 	}
@@ -38,6 +47,7 @@ public class Item {
 		return milk;
 	}
 
+	@XmlElement
 	public void setMilk(String milk) {
 		this.milk = milk;
 	}
@@ -46,6 +56,7 @@ public class Item {
 		return size;
 	}
 
+	@XmlElement
 	public void setSize(String size) {
 		this.size = size;
 	}
@@ -54,6 +65,7 @@ public class Item {
 		return kind;
 	}
 
+	@XmlElement
 	public void setKind(String kind) {
 		this.kind = kind;
 	}
