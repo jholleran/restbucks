@@ -19,7 +19,7 @@ public class InMemoryOrderRepository implements OrderRepository {
 		order1Items.add(latte);
 		order1Items.add(cookie);
 		
-		save(new Order(order1Items, "takeaway"));
+		save(new Order(order1Items, "takeaway", "pending"));
 		
 		Item mocha = new Item("mocha", "3", "skimmed", "large", null);
 		Item cheeseCake = new Item("cake", "2", null, null, "cheese-cake");
@@ -27,7 +27,7 @@ public class InMemoryOrderRepository implements OrderRepository {
 		order2Items.add(mocha);
 		order2Items.add(cheeseCake);
 		
-		save(new Order(order2Items, "instore"));
+		save(new Order(order2Items, "instore", "served"));
 	}
 
 	@Override

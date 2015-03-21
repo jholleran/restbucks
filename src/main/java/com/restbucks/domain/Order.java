@@ -11,13 +11,15 @@ public class Order {
 
 	private List<Item> items;
 	private String location;
+	private String status;
 	
 	public Order() {
 	}
 	
-	public Order(List<Item> items, String location) {
+	public Order(List<Item> items, String location, String status) {
 		this.items= items;
 		this.location = location;
+		this.status = status;
 	}
 	
 	public List<Item> getItems() {
@@ -36,6 +38,15 @@ public class Order {
 	@XmlElement
 	public void setLocation(String location) {
 		this.location = location;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	@XmlElement
+	public void setStatus(String status) {
+		this.status = status;
 	}
 
 }
