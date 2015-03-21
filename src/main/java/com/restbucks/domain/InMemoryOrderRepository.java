@@ -41,8 +41,8 @@ public class InMemoryOrderRepository implements OrderRepository {
 	}
 
 	@Override
-	public void save(Order animal) {
-		orders.put(new Long(orders.size()), animal);
+	public void save(Order order) {
+		orders.put(new Long(orders.size()), order);
 	}
 
 }

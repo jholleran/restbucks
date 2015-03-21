@@ -1,16 +1,16 @@
 package com.restbucks.web;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.restbucks.domain.Order;
 import com.restbucks.domain.OrderRepository;
+import com.restbucks.domain.Orders;
 
 @Controller
 @RequestMapping("api")
@@ -31,13 +31,13 @@ public class OrderController {
 	
 	@RequestMapping("order")
 	@ResponseBody
-	public List<Order> getAll() {
-		return repository.getAll();
+	public Orders getAll() {
+		return new Orders(repository.getAll());
 	}
 	
 	@RequestMapping(value="order", method=RequestMethod.POST)
 	@ResponseBody
-	public String save(Order order) {
+	public String save(@RequestBody Order order) {
 		repository.save(order);
 		return "Saved order: ";
 	}

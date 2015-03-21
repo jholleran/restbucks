@@ -22,6 +22,7 @@ public class Order {
 		this.status = status;
 	}
 	
+	@XmlElement(name="item")
 	public List<Item> getItems() {
 		return items;
 	}
