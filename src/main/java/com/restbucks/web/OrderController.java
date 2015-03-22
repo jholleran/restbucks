@@ -69,7 +69,7 @@ public class OrderController {
 
 	@RequestMapping(value = "order/{id}", method = RequestMethod.PUT)
 	@ResponseBody
-	public Order update(@PathVariable Long id, @RequestBody Order order) {
+	public ResponseEntity<Order> update(@PathVariable Long id, @RequestBody Order order) {
 		Order savedOrder = repository.getById(id);
 		if (savedOrder == null) {
 			throw new OrderNotFoundException(id);
@@ -77,17 +77,18 @@ public class OrderController {
 		// need to handle a conflict if it occurs
 		boolean conflict = repository.update(id, order);
 		if (conflict) {
-			throw new ConflictException(id);
+			Order latest = repository.getById(id);
+			return new ResponseEntity<Order>(latest, HttpStatus.CONFLICT);
 		}
 		
 		//TODO handle Internal Server error
 		
-		return order;
+		return new ResponseEntity<Order>(order, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "order/{id}", method = RequestMethod.DELETE)
 	@ResponseBody
-	public void delete(@PathVariable Long id) {
+	public ResponseEntity<Void> delete(@PathVariable Long id) {
 		Order order = repository.getById(id);
 		if (order == null) {
 			throw new OrderNotFoundException(id);
@@ -95,9 +96,10 @@ public class OrderController {
 
 		boolean canDelete = repository.delete(id);
 		if (!canDelete) {
-			throw new MethodNotAllowedException(id);
+			return new ResponseEntity<Void>(HttpStatus.METHOD_NOT_ALLOWED);
 		}
 		
 		//TODO handle Internal Server error
+		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 }

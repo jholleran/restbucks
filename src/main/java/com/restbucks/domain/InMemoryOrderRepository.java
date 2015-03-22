@@ -53,7 +53,7 @@ public class InMemoryOrderRepository implements OrderRepository {
 	@Override
 	public boolean update(Long id, Order order) {
 		orders.put(id, order);
-		return true;
+		return false;
 	}
 
 	@Override
