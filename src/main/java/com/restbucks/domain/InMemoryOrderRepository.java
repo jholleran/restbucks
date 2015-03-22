@@ -20,7 +20,7 @@ public class InMemoryOrderRepository implements OrderRepository {
 		order1Items.add(latte);
 		order1Items.add(cookie);
 		
-		save(new Order(order1Items, "takeaway", "pending"));
+		save(new Order(order1Items, "takeaway", "pending", "2.50"));
 		
 		Item mocha = new Item("mocha", "3", "skimmed", "large", null);
 		Item cheeseCake = new Item("cake", "2", null, null, "cheese-cake");
@@ -28,7 +28,7 @@ public class InMemoryOrderRepository implements OrderRepository {
 		order2Items.add(mocha);
 		order2Items.add(cheeseCake);
 		
-		save(new Order(order2Items, "instore", "served"));
+		save(new Order(order2Items, "instore", "served", "4.00"));
 	}
 
 	@Override
@@ -43,7 +43,6 @@ public class InMemoryOrderRepository implements OrderRepository {
 
 	@Override
 	public Long save(Order order) {
-		order.setStatus("pending");
 		Long id = idCounter;
 		orders.put(id, order);
 		idCounter++;

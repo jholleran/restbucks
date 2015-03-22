@@ -55,6 +55,10 @@ public class OrderController {
 		//TODO handle Bad Request
 		//TODO handle Internal Server error
 		
+		//TODO yeah this doesn't belong here
+		order.setStatus("payment-expected");
+		order.setCost("5.00");
+		
 		Long id = repository.save(order);
 
 		final URI location = ServletUriComponentsBuilder

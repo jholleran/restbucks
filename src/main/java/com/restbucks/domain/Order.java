@@ -12,14 +12,16 @@ public class Order {
 	private List<Item> items;
 	private String location;
 	private String status;
+	private String cost;
 	
 	public Order() {
 	}
 	
-	public Order(List<Item> items, String location, String status) {
+	public Order(List<Item> items, String location, String status, String cost) {
 		this.items= items;
 		this.location = location;
 		this.status = status;
+		this.cost = cost;
 	}
 	
 	@XmlElement(name="item")
@@ -48,6 +50,15 @@ public class Order {
 	@XmlElement
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public String getCost() {
+		return cost;
+	}
+
+	@XmlElement
+	public void setCost(String cost) {
+		this.cost = cost;
 	}
 
 }
