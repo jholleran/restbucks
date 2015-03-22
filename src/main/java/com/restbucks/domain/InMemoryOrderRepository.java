@@ -42,8 +42,12 @@ public class InMemoryOrderRepository implements OrderRepository {
 	}
 
 	@Override
-	public void save(Order order) {
-		orders.put(idCounter++, order);
+	public Long save(Order order) {
+		order.setStatus("pending");
+		Long id = idCounter;
+		orders.put(id, order);
+		idCounter++;
+		return id;
 	}
 
 	@Override

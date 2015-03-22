@@ -9,7 +9,7 @@ public interface OrderRepository {
 	
 	public List<Order> getAll();
 
-	public void save(Order order);
+	public Long save(Order order);
 	
 	public boolean update(Long id, Order order);
 
