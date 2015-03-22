@@ -11,7 +11,8 @@ import org.springframework.stereotype.Service;
 public class InMemoryOrderRepository implements OrderRepository {
 
 	private final Map<Long, Order> orders = new HashMap<Long, Order>();
-
+	private Long idCounter = 0L;
+	
 	public InMemoryOrderRepository() {
 		Item latte = new Item("latte", "1", "whole", "small", null);
 		Item cookie = new Item("cookie", "2", null, null, "chocolate-chip");
@@ -42,12 +43,19 @@ public class InMemoryOrderRepository implements OrderRepository {
 
 	@Override
 	public void save(Order order) {
-		orders.put(new Long(orders.size()), order);
+		orders.put(idCounter++, order);
 	}
 
 	@Override
-	public void update(Long id, Order order) {
+	public boolean update(Long id, Order order) {
 		orders.put(id, order);
+		return true;
+	}
+
+	@Override
+	public boolean delete(Long id) {
+		orders.remove(id);
+		return true;
 	}
 
 }

@@ -53,7 +53,25 @@ public class OrderController {
 		if(savedOrder == null) {			
 			throw new OrderNotFoundException(id);
 		}
-		repository.update(id, order);
+		// need to handle a conflict if it occurs
+		boolean conflict = repository.update(id, order);
+		if(conflict) {
+			throw new ConflictException(id);
+		}
 		return order;
+	}
+	
+	@RequestMapping(value="order/{id}", method=RequestMethod.DELETE)
+	@ResponseBody
+	public void delete(@PathVariable Long id) {
+		Order order = repository.getById(id);
+		if(order == null) {			
+			throw new OrderNotFoundException(id);
+		}
+		
+		boolean canDelete = repository.delete(id);
+		if(!canDelete) {
+			throw new MethodNotAllowedException(id);
+		}
 	}
 }

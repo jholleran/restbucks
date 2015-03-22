@@ -11,6 +11,8 @@ public interface OrderRepository {
 
 	public void save(Order order);
 	
-	public void update(Long id, Order order);
+	public boolean update(Long id, Order order);
+
+	public boolean delete(Long id);
 
 }
