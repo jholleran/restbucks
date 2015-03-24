@@ -3,7 +3,7 @@ package com.restbucks.client;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
@@ -17,9 +17,9 @@ public class PayForOrderClient {
 	public static void main(String[] args) throws Exception {
 		// HttpClient
 		HttpClient client = HttpClientBuilder.create().build();
-		HttpPost post = new HttpPost(
-				"http://localhost:8080/restbucks/web/api/payment");
-		post.setHeader("Content-Type", "application/xml");
+		HttpPut put = new HttpPut(
+				"http://localhost:8080/restbucks/web/api/payment/2");
+		put.setHeader("Content-Type", "application/xml");
 
 		String xml = "<ns2:payment xmlns:ns2=\"http://schemas.restbucks.com/payment\">"
 				+ "<amount>5.00</amount>"
@@ -30,8 +30,8 @@ public class PayForOrderClient {
 				+ "</ns2:payment>";
 
 		HttpEntity entity = new ByteArrayEntity(xml.getBytes("UTF-8"));
-		post.setEntity(entity);
-		HttpResponse response = client.execute(post);
+		put.setEntity(entity);
+		HttpResponse response = client.execute(put);
 
 		int responseCode = response.getStatusLine().getStatusCode();
 		System.out.println("response code: " + responseCode);
@@ -51,7 +51,7 @@ public class PayForOrderClient {
 					.println("If we get a 5xx response, the caller may retry");
 		}
 
-		post.releaseConnection();
+		put.releaseConnection();
 	}
 
 }

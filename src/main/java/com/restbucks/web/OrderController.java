@@ -17,16 +17,20 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.restbucks.domain.Order;
 import com.restbucks.domain.OrderRepository;
 import com.restbucks.domain.Orders;
+import com.restbucks.domain.Payment;
+import com.restbucks.domain.PaymentProcessor;
 
 @Controller
 @RequestMapping("api")
 public class OrderController {
 
 	private OrderRepository repository;
+	private PaymentProcessor paymentProcessor;
 
 	@Autowired
-	public OrderController(OrderRepository repository) {
+	public OrderController(OrderRepository repository, PaymentProcessor paymentProcessor) {
 		this.repository = repository;
+		this.paymentProcessor = paymentProcessor;
 	}
 
 	@RequestMapping("order/{id}")
@@ -105,5 +109,24 @@ public class OrderController {
 		
 		//TODO handle Internal Server error
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+	}
+	
+	
+	@RequestMapping(value = "payment/{id}", method = RequestMethod.PUT)
+	@ResponseBody
+	public ResponseEntity<Payment> payment(@PathVariable Long id, @RequestBody Payment payment) {
+		Order order = repository.getById(id);
+		if (order == null) {
+			throw new OrderNotFoundException(id);
+		}
+		
+		paymentProcessor.process(payment, order);
+		
+		repository.save(order);
+		
+		
+		//TODO handle Internal Server error
+		
+		return new ResponseEntity<Payment>(payment, HttpStatus.OK);
 	}
 }
