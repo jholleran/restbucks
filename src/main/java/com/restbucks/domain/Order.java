@@ -13,6 +13,7 @@ public class Order {
 	private String location;
 	private String status;
 	private String cost;
+	private String payment;
 	
 	public Order() {
 	}
@@ -59,6 +60,21 @@ public class Order {
 	@XmlElement
 	public void setCost(String cost) {
 		this.cost = cost;
+	}
+
+	/**
+	 * @return the payment
+	 */
+	public String getPayment() {
+		return payment;
+	}
+
+	/**
+	 * @param payment the payment to set
+	 */
+	@XmlElement
+	public void setPayment(String payment) {
+		this.payment = payment;
 	}
 
 }

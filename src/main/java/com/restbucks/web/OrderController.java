@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponents;
 
 import com.restbucks.domain.Order;
 import com.restbucks.domain.OrderRepository;
@@ -65,14 +66,21 @@ public class OrderController {
 		
 		Long id = repository.save(order);
 
-		final URI location = ServletUriComponentsBuilder
-				.fromCurrentServletMapping().path("/api/order/{id}").build()
-				.expand(id).toUri();
+		//TODO move to document based - no need to store this in DB
+		order.setPayment(buildUri(id, "/api/payment/{id}").toString());
+
+		final URI location = buildUri(id, "/api/order/{id}").toUri();
 
 		final HttpHeaders headers = new HttpHeaders();
 		headers.setLocation(location);
 
 		return new ResponseEntity<Order>(order, headers, HttpStatus.CREATED);
+	}
+
+	private UriComponents buildUri(Long id, String uriTemplate) {
+		return ServletUriComponentsBuilder
+				.fromCurrentServletMapping().path(uriTemplate).build()
+				.expand(id);
 	}
 
 	@RequestMapping(value = "order/{id}", method = RequestMethod.PUT)
