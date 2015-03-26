@@ -22,6 +22,8 @@ import com.restbucks.domain.*;
 @RequestMapping("api")
 public class OrderController {
 
+	private static final String MEDIA_TYPE = "application/vnd.restbucks+xml";
+	
 	private OrderRepository repository;
 	private PaymentProcessor paymentProcessor;
 
@@ -38,6 +40,14 @@ public class OrderController {
 		if (order == null) {
 			throw new OrderNotFoundException(id);
 		}
+				
+		if(order.getStatus().equals("ready")) {
+			List<Link> links = new ArrayList<Link>();
+			String receiptUri = buildUri(id, "/api/receipt/{id}").toString();
+			links.add(new Link(receiptUri, MEDIA_TYPE, "http://relations.restbucks.com/receipt"));
+			order.setLinks(links);
+		}
+		
 		
 		//TODO handle Internal Server error
 		return order;
@@ -61,14 +71,19 @@ public class OrderController {
 		order.setStatus("payment-expected");
 		order.setCost("5.00");
 		
-		Long id = repository.save(order);
+		Long id = repository.nextId();
 
+		String orderUri = buildUri(id, "/api/order/{id}").toString();
 		String paymentUri = buildUri(id, "/api/payment/{id}").toString();
 		
 		List<Link> links = new ArrayList<Link>();
-		links.add(new Link(paymentUri, "application/vnd.restbucks+xm", "http://relations.restbucks.com/payment"));
+		links.add(new Link(orderUri, MEDIA_TYPE, "http://relations.restbucks.com/cancel"));
+		links.add(new Link(orderUri, MEDIA_TYPE, "http://relations.restbucks.com/update"));
+		links.add(new Link(paymentUri, MEDIA_TYPE, "http://relations.restbucks.com/payment"));
 		order.setLinks(links);
 		
+		repository.save(id, order);
+
 		final URI location = buildUri(id, "/api/order/{id}").toUri();
 
 		final HttpHeaders headers = new HttpHeaders();
@@ -91,7 +106,7 @@ public class OrderController {
 			throw new OrderNotFoundException(id);
 		}
 		// need to handle a conflict if it occurs
-		boolean conflict = repository.update(id, order);
+		boolean conflict = repository.save(id, order);
 		if (conflict) {
 			Order latest = repository.getById(id);
 			return new ResponseEntity<Order>(latest, HttpStatus.CONFLICT);
@@ -130,11 +145,22 @@ public class OrderController {
 		
 		paymentProcessor.process(payment, order);
 		
-		repository.save(order);
+		String orderUri = buildUri(id, "/api/order/{id}").toString();
+
+		List<Link> orderLinks = new ArrayList<Link>();
+		orderLinks.add(new Link(orderUri, MEDIA_TYPE, "self"));
+		order.setLinks(orderLinks);
 		
+		repository.save(id, order);
+		
+		
+		String receiptUri = buildUri(id, "/api/receipt/{id}").toString();
+		List<Link> links = new ArrayList<Link>();
+		links.add(new Link(orderUri, MEDIA_TYPE, "http://relations.restbucks.com/order"));
+		links.add(new Link(receiptUri, MEDIA_TYPE, "http://relations.restbucks.com/receipt"));
+		payment.setLinks(links);
 		
 		//TODO handle Internal Server error
-		
 		return new ResponseEntity<Payment>(payment, HttpStatus.OK);
 	}
 }

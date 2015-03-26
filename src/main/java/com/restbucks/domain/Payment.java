@@ -1,5 +1,7 @@
 package com.restbucks.domain;
 
+import java.util.List;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -12,6 +14,7 @@ public class Payment {
 	private String expiryMonth;
 	private String expiryYear;
 	private String status;
+	private List<Link> links;
 	
 	public String getAmount() {
 		return amount;
@@ -67,4 +70,12 @@ public class Payment {
 		this.status = status;
 	}
 	
+	public List<Link> getLinks() {
+		return links;
+	}
+
+	@XmlElement(name="link", namespace="http://schemas.restbucks.com/dap")
+	public void setLinks(List<Link> links) {
+		this.links = links;
+	}
 }

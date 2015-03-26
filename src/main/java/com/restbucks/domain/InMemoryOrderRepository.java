@@ -14,21 +14,33 @@ public class InMemoryOrderRepository implements OrderRepository {
 	private Long idCounter = 0L;
 	
 	public InMemoryOrderRepository() {
+		Item largeLatte = new Item("latte", "1", "whole", "large", null);
+		List<Item> order1Items = new ArrayList<Item>();
+		order1Items.add(largeLatte);
+		
+		save(nextId(), new Order(order1Items, "takeaway", "payment-expected", "1.50"));
+		
 		Item latte = new Item("latte", "1", "whole", "small", null);
 		Item cookie = new Item("cookie", "2", null, null, "chocolate-chip");
-		List<Item> order1Items = new ArrayList<Item>();
-		order1Items.add(latte);
-		order1Items.add(cookie);
+		List<Item> order2Items = new ArrayList<Item>();
+		order2Items.add(latte);
+		order2Items.add(cookie);
 		
-		save(new Order(order1Items, "takeaway", "pending", "2.50"));
+		save(nextId(), new Order(order2Items, "takeaway", "preparing", "2.50"));
 		
 		Item mocha = new Item("mocha", "3", "skimmed", "large", null);
 		Item cheeseCake = new Item("cake", "2", null, null, "cheese-cake");
-		List<Item> order2Items = new ArrayList<Item>();
-		order2Items.add(mocha);
-		order2Items.add(cheeseCake);
+		List<Item> order3Items = new ArrayList<Item>();
+		order3Items.add(mocha);
+		order3Items.add(cheeseCake);
 		
-		save(new Order(order2Items, "instore", "served", "4.00"));
+		save(nextId(), new Order(order3Items, "instore", "ready", "4.00"));
+		
+		Item mocha2 = new Item("mocha", "2", "skimmed", "large", null);
+		List<Item> order4Items = new ArrayList<Item>();
+		order4Items.add(mocha2);
+		
+		save(nextId(), new Order(order4Items, "instore", "taken", "4.00"));
 	}
 
 	@Override
@@ -42,15 +54,7 @@ public class InMemoryOrderRepository implements OrderRepository {
 	}
 
 	@Override
-	public Long save(Order order) {
-		Long id = idCounter;
-		orders.put(id, order);
-		idCounter++;
-		return id;
-	}
-
-	@Override
-	public boolean update(Long id, Order order) {
+	public boolean save(Long id, Order order) {
 		orders.put(id, order);
 		return false;
 	}
@@ -59,6 +63,11 @@ public class InMemoryOrderRepository implements OrderRepository {
 	public boolean delete(Long id) {
 		orders.remove(id);
 		return true;
+	}
+
+	@Override
+	public Long nextId() {
+		return idCounter++;
 	}
 
 }

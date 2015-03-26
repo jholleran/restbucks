@@ -8,7 +8,7 @@ public class FakePaymentProcessor implements PaymentProcessor {
 	@Override
 	public void process(Payment payment, Order order) {
 
-		order.setStatus("payment-received");
+		order.setStatus("preparing");
 	}
 
 }
