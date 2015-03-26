@@ -6,7 +6,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "order", namespace = "http://schemas.restbucks.com/order")
+@XmlRootElement
 public class Order {
 
 	private List<Item> items;
@@ -72,7 +72,7 @@ public class Order {
 	/**
 	 * @param payment the payment to set
 	 */
-	@XmlElement
+	@XmlElement(namespace="http://schemas.restbucks.com/dap")
 	public void setPayment(String payment) {
 		this.payment = payment;
 	}
