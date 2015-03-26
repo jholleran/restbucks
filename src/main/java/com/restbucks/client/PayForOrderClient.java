@@ -19,7 +19,7 @@ public class PayForOrderClient {
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpPut put = new HttpPut(
 				"http://localhost:8080/restbucks/web/api/payment/4");
-		put.setHeader("Content-Type", "application/xml");
+		put.setHeader("Content-Type", "application/vnd.restbucks+xml");
 
 		String xml = "<ns2:payment xmlns:ns2=\"http://schemas.restbucks.com/payment\">"
 				+ "<amount>5.00</amount>"

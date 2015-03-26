@@ -1,5 +1,7 @@
 package com.restbucks.web;
 
+import static com.restbucks.web.OrderController.MEDIA_TYPE;
+
 import java.net.URI;
 import java.util.*;
 
@@ -19,10 +21,10 @@ import org.springframework.web.util.UriComponents;
 import com.restbucks.domain.*;
 
 @Controller
-@RequestMapping("api")
+@RequestMapping(value = "api", consumes = {MEDIA_TYPE}, produces = {MEDIA_TYPE})
 public class OrderController {
 
-	private static final String MEDIA_TYPE = "application/vnd.restbucks+xml";
+	public static final String MEDIA_TYPE = "application/vnd.restbucks+xml";
 	
 	private OrderRepository repository;
 	private PaymentProcessor paymentProcessor;

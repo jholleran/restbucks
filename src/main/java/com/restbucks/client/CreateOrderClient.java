@@ -19,7 +19,7 @@ public class CreateOrderClient {
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpPost post = new HttpPost(
 				"http://localhost:8080/restbucks/web/api/order");
-		post.setHeader("Content-Type", "application/xml");
+		post.setHeader("Content-Type", "application/vnd.restbucks+xml");
 
 		String xml = "<order xmlns=\"http://schemas.restbucks.com\">"
 				+ "<items>"
