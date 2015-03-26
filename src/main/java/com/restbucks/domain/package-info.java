@@ -3,7 +3,7 @@
 		elementFormDefault = XmlNsForm.QUALIFIED, 
 		xmlns = { 
 				@javax.xml.bind.annotation.XmlNs(prefix = "", namespaceURI = "http://schemas.restbucks.com"), 
-				@javax.xml.bind.annotation.XmlNs(prefix = "dap", namespaceURI = "http://schemas.restbucks.com/dap") 
+				@javax.xml.bind.annotation.XmlNs(prefix = "dap", namespaceURI = "http://schemas.restbucks.com/dap")
 		}
 
 )

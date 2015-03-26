@@ -2,7 +2,7 @@ package com.restbucks.domain;
 
 import javax.xml.bind.annotation.*;
 
-@XmlRootElement
+@XmlRootElement(name="link", namespace="http://schemas.restbucks.com/dap")
 public class Link {
 
     private String mediaType;

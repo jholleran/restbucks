@@ -5,7 +5,7 @@ import java.util.List;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "payment", namespace = "http://schemas.restbucks.com/payment")
+@XmlRootElement(namespace="http://schemas.restbucks.com/payment")
 public class Payment {
 
 	private String amount;

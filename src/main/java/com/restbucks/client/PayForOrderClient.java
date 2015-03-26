@@ -21,13 +21,13 @@ public class PayForOrderClient {
 				"http://localhost:8080/restbucks/web/api/payment/4");
 		put.setHeader("Content-Type", "application/vnd.restbucks+xml");
 
-		String xml = "<ns2:payment xmlns:ns2=\"http://schemas.restbucks.com/payment\">"
+		String xml = "<ns3:payment xmlns=\"http://schemas.restbucks.com\" xmlns:ns3=\"http://schemas.restbucks.com/payment\">"
 				+ "<amount>5.00</amount>"
-				+ "<cardholderName>Michael Faraday</cardholderName>"
+				+ "<cardHolderName>Michael Faraday</cardHolderName>"
 				+ "<cardNumber>11223344</cardNumber>"
 				+ "<expiryMonth>12</expiryMonth>"
 				+ "<expiryYear>12</expiryYear>"
-				+ "</ns2:payment>";
+				+ "</ns3:payment>";
 
 		HttpEntity entity = new ByteArrayEntity(xml.getBytes("UTF-8"));
 		put.setEntity(entity);
