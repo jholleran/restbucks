@@ -13,7 +13,7 @@ public class Order {
 	private String location;
 	private String status;
 	private String cost;
-	private Link link;
+	private List<Link> links;
 	
 	public Order() {
 	}
@@ -63,16 +63,13 @@ public class Order {
 	}
 
 
-	public Link getLink() {
-		return link;
+	public List<Link> getLinks() {
+		return links;
 	}
 
-	/**
-	 * @param payment the payment to set
-	 */
-	@XmlElement(namespace="http://schemas.restbucks.com/dap")
-	public void setLink(Link link) {
-		this.link = link;
+	@XmlElement(name="link", namespace="http://schemas.restbucks.com/dap")
+	public void setLinks(List<Link> links) {
+		this.links = links;
 	}
 
 }

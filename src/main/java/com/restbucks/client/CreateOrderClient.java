@@ -21,7 +21,7 @@ public class CreateOrderClient {
 				"http://localhost:8080/restbucks/web/api/order");
 		post.setHeader("Content-Type", "application/xml");
 
-		String xml = "<ns2:order xmlns:ns2=\"http://schemas.restbucks.com/order\">"
+		String xml = "<order xmlns=\"http://schemas.restbucks.com\">"
 				+ "<items>"
 				+ "<item>"
 				+ "<milk>whole</milk>"
@@ -37,7 +37,7 @@ public class CreateOrderClient {
 				+ "</items>"
 				+ "<location>takeaway</location>"
 				+ "<status>pending</status>"
-				+ "</ns2:order>";
+				+ "</order>";
 
 		HttpEntity entity = new ByteArrayEntity(xml.getBytes("UTF-8"));
 		post.setEntity(entity);

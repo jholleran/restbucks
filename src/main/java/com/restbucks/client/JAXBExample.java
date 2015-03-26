@@ -1,5 +1,7 @@
 package com.restbucks.client;
 
+import java.util.*;
+
 import javax.xml.bind.*;
 
 import com.restbucks.domain.*;
@@ -11,7 +13,13 @@ public class JAXBExample {
 		Order order = new Order();
 		order.setCost("100");
 		order.setStatus("payment-expected");
-		order.setLink(new Link("localhost:8080/restbucks/web/api/payment/2", "application/vnd.restbucks+xm", "http://relations.restbucks.com/payment"));
+		List<Link> links = new ArrayList<Link>();
+		links.add(new Link("localhost:8080/restbucks/web/api/payment/2", "application/vnd.restbucks+xm", "http://relations.restbucks.com/payment"));
+		links.add(new Link("localhost:8080/restbucks/web/api/order/2", "application/vnd.restbucks+xm", "http://relations.restbucks.com/cancel"));
+		links.add(new Link("localhost:8080/restbucks/web/api/order/2", "application/vnd.restbucks+xm", "http://relations.restbucks.com/update"));
+		links.add(new Link("localhost:8080/restbucks/web/api/order/2", "application/vnd.restbucks+xm", "self"));
+		
+		order.setLinks(links);
 
 		try {
 

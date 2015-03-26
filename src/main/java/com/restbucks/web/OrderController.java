@@ -1,6 +1,7 @@
 package com.restbucks.web;
 
 import java.net.URI;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -15,11 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponents;
 
-import com.restbucks.domain.Order;
-import com.restbucks.domain.OrderRepository;
-import com.restbucks.domain.Orders;
-import com.restbucks.domain.Payment;
-import com.restbucks.domain.PaymentProcessor;
+import com.restbucks.domain.*;
 
 @Controller
 @RequestMapping("api")
@@ -66,9 +63,12 @@ public class OrderController {
 		
 		Long id = repository.save(order);
 
-		//TODO move to document based - no need to store this in DB
-		//order.setPayment(buildUri(id, "/api/payment/{id}").toString());
-
+		String paymentUri = buildUri(id, "/api/payment/{id}").toString();
+		
+		List<Link> links = new ArrayList<Link>();
+		links.add(new Link(paymentUri, "application/vnd.restbucks+xm", "http://relations.restbucks.com/payment"));
+		order.setLinks(links);
+		
 		final URI location = buildUri(id, "/api/order/{id}").toUri();
 
 		final HttpHeaders headers = new HttpHeaders();
