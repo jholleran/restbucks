@@ -13,7 +13,7 @@ public class Order {
 	private String location;
 	private String status;
 	private String cost;
-	private String payment;
+	private Link link;
 	
 	public Order() {
 	}
@@ -62,19 +62,17 @@ public class Order {
 		this.cost = cost;
 	}
 
-	/**
-	 * @return the payment
-	 */
-	public String getPayment() {
-		return payment;
+
+	public Link getLink() {
+		return link;
 	}
 
 	/**
 	 * @param payment the payment to set
 	 */
 	@XmlElement(namespace="http://schemas.restbucks.com/dap")
-	public void setPayment(String payment) {
-		this.payment = payment;
+	public void setLink(Link link) {
+		this.link = link;
 	}
 
 }

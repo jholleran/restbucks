@@ -67,7 +67,7 @@ public class OrderController {
 		Long id = repository.save(order);
 
 		//TODO move to document based - no need to store this in DB
-		order.setPayment(buildUri(id, "/api/payment/{id}").toString());
+		//order.setPayment(buildUri(id, "/api/payment/{id}").toString());
 
 		final URI location = buildUri(id, "/api/order/{id}").toUri();
 

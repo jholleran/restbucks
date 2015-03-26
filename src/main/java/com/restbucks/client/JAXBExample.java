@@ -2,7 +2,7 @@ package com.restbucks.client;
 
 import javax.xml.bind.*;
 
-import com.restbucks.domain.Order;
+import com.restbucks.domain.*;
 
 public class JAXBExample {
 
@@ -11,7 +11,7 @@ public class JAXBExample {
 		Order order = new Order();
 		order.setCost("100");
 		order.setStatus("payment-expected");
-		order.setPayment("localhost:8080/restbucks/web/api/payment/2");
+		order.setLink(new Link("localhost:8080/restbucks/web/api/payment/2", "application/vnd.restbucks+xm", "http://relations.restbucks.com/payment"));
 
 		try {
 
