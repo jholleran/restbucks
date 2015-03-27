@@ -12,8 +12,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
+import org.apache.http.client.methods.*;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
@@ -63,8 +62,13 @@ public class CreateOrderAndPayClient {
 		String paymentResponse = payForOrder(paymentUri, payment);
 		
 		Document prd = createDocument(paymentResponse);
+		printDocument(prd);
+		
 		String orderUri = xpath.evaluate("//*[@rel=\"http://relations.restbucks.com/order\"]/@uri", prd);
 		
+		String orderResponse = readOrder(orderUri);
+		Document ord = createDocument(orderResponse);
+		printDocument(ord);
 	}
 
 	private static Document createDocument(String response)
@@ -117,7 +121,27 @@ public class CreateOrderAndPayClient {
 		return responseBody;
 	}
 
+	private static String readOrder(String endpoint)
+			throws Exception {
+		// HttpClient
+		HttpClient client = HttpClientBuilder.create().build();
+		HttpGet get = new HttpGet(endpoint);
+		get.setHeader("Content-Type", MEDIA_TYPE);
 
+		HttpResponse response = client.execute(get);
+
+		int responseCode = response.getStatusLine().getStatusCode();
+		System.out.println("response code: " + responseCode);
+		String responseBody = EntityUtils.toString(response.getEntity());
+		System.out.println("response body: " + responseBody);
+
+		
+		printIfError(responseCode);
+
+		get.releaseConnection();
+		return responseBody;
+	}
+	
 	private static String payForOrder(String orderUri, String paymentXml)
 			throws Exception {
 		// HttpClient
