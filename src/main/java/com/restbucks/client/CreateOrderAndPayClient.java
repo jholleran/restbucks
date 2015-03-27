@@ -1,7 +1,12 @@
 package com.restbucks.client;
 
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
+
+import javax.xml.parsers.*;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.*;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -12,6 +17,8 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
+import org.w3c.dom.Document;
+import org.xml.sax.*;
 
 public class CreateOrderAndPayClient {
 
@@ -33,7 +40,16 @@ public class CreateOrderAndPayClient {
 
 		String endpoint = "http://localhost:8080/restbucks/web/api/order";
 
-		String orderUri = createOrder(endpoint, xml);
+		String response = createOrder(endpoint, xml);
+		
+		Document document = createDocument(response);
+
+		XPathFactory xpathFactory = XPathFactory.newInstance();
+		XPath xpath = xpathFactory.newXPath();
+		
+		printDocument(document);
+		
+		String paymentUri = xpath.evaluate("//*[@rel=\"http://relations.restbucks.com/payment\"]/@uri", document);
 		//TODO read correct payment endpoint
 
 		String payment = "<ns3:payment xmlns=\"http://schemas.restbucks.com\" xmlns:ns3=\"http://schemas.restbucks.com/payment\">"
@@ -44,8 +60,33 @@ public class CreateOrderAndPayClient {
 				+ "<expiryYear>12</expiryYear>"
 				+ "</ns3:payment>";
 
-		payForOrder(orderUri, payment);
+		String paymentResponse = payForOrder(paymentUri, payment);
+		
+		Document prd = createDocument(paymentResponse);
+		String orderUri = xpath.evaluate("//*[@rel=\"http://relations.restbucks.com/order\"]/@uri", prd);
+		
+	}
 
+	private static Document createDocument(String response)
+			throws ParserConfigurationException, SAXException, IOException {
+		InputSource source = new InputSource(new StringReader(response));
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		Document document = db.parse(source);
+		return document;
+	}
+
+	private static void printDocument(Document document)
+			throws TransformerConfigurationException,
+			TransformerFactoryConfigurationError, TransformerException {
+		Transformer transformer = TransformerFactory.newInstance().newTransformer();
+		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+		//initialize StreamResult with File object to save to file
+		StreamResult result = new StreamResult(new StringWriter());
+		DOMSource source = new DOMSource(document);
+		transformer.transform(source, result);
+		String xmlString = result.getWriter().toString();
+		System.out.println(xmlString);
 	}
 
 	private static String createOrder(String endpoint, String orderXml)
@@ -62,23 +103,22 @@ public class CreateOrderAndPayClient {
 
 		int responseCode = response.getStatusLine().getStatusCode();
 		System.out.println("response code: " + responseCode);
-		String result = EntityUtils.toString(response.getEntity());
-		System.out.println("response body: " + result);
+		String responseBody = EntityUtils.toString(response.getEntity());
+		System.out.println("response body: " + responseBody);
 
-		String orderUri = "";
 		if (responseCode == 201) {
-			orderUri = response.getHeaders("Location")[0].getValue();
+			String orderUri = response.getHeaders("Location")[0].getValue();
 			System.out.println("Location: " + orderUri);
 		} 
 		
 		printIfError(responseCode);
 
 		post.releaseConnection();
-		return orderUri;
+		return responseBody;
 	}
 
 
-	private static void payForOrder(String orderUri, String paymentXml)
+	private static String payForOrder(String orderUri, String paymentXml)
 			throws Exception {
 		// HttpClient
 		HttpClient client = HttpClientBuilder.create().build();
@@ -97,6 +137,7 @@ public class CreateOrderAndPayClient {
 		printIfError(responseCode);
 
 		put.releaseConnection();
+		return result;
 	}
 
 	private static void printIfError(int responseCode) {
