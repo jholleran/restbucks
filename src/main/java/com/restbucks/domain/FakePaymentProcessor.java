@@ -6,9 +6,16 @@ import org.springframework.stereotype.Service;
 public class FakePaymentProcessor implements PaymentProcessor {
 
 	@Override
-	public void process(Payment payment, Order order) {
+	public boolean process(Payment payment, Order order) {
 
-		order.setStatus("preparing");
+		if (payment != null && payment.getAmount() != null
+				&& payment.getCardHolderName() != null
+				&& payment.getCardNumber() != null && payment.getExpiryYear() != null
+				&& payment.getExpiryMonth() != null) {
+			order.setStatus("preparing");
+			return true;
+		}
+		return false;
 	}
 
 }

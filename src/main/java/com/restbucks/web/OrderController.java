@@ -149,25 +149,28 @@ public class OrderController {
 			throw new OrderNotFoundException(id);
 		}
 
-		paymentProcessor.process(payment, order);
+		boolean paid = paymentProcessor.process(payment, order);
+		if (paid) {
 
-		String orderUri = buildUri(id, "/api/order/{id}").toString();
+			String orderUri = buildUri(id, "/api/order/{id}").toString();
 
-		List<Link> orderLinks = new ArrayList<Link>();
-		orderLinks.add(new Link(orderUri, MEDIA_TYPE, "self"));
-		order.setLinks(orderLinks);
+			List<Link> orderLinks = new ArrayList<Link>();
+			orderLinks.add(new Link(orderUri, MEDIA_TYPE, "self"));
+			order.setLinks(orderLinks);
 
-		repository.save(id, order);
+			repository.save(id, order);
 
-		String receiptUri = buildUri(id, "/api/receipt/{id}").toString();
-		List<Link> links = new ArrayList<Link>();
-		links.add(new Link(orderUri, MEDIA_TYPE,
-				"http://relations.restbucks.com/order"));
-		links.add(new Link(receiptUri, MEDIA_TYPE,
-				"http://relations.restbucks.com/receipt"));
-		payment.setLinks(links);
+			String receiptUri = buildUri(id, "/api/receipt/{id}").toString();
+			List<Link> links = new ArrayList<Link>();
+			links.add(new Link(orderUri, MEDIA_TYPE,
+					"http://relations.restbucks.com/order"));
+			links.add(new Link(receiptUri, MEDIA_TYPE,
+					"http://relations.restbucks.com/receipt"));
+			payment.setLinks(links);
+			return new ResponseEntity<Payment>(payment, HttpStatus.OK);
+		}
 
+		return new ResponseEntity<Payment>(payment, HttpStatus.PAYMENT_REQUIRED);
 		// TODO handle Internal Server error
-		return new ResponseEntity<Payment>(payment, HttpStatus.OK);
 	}
 }
