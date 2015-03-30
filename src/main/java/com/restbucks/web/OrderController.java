@@ -176,4 +176,22 @@ public class OrderController {
 		return new ResponseEntity<Payment>(payment, HttpStatus.PAYMENT_REQUIRED);
 		// TODO handle Internal Server error
 	}
+	
+	@RequestMapping(value = "receipt/{id}", method = RequestMethod.DELETE)
+	@ResponseBody
+	public ResponseEntity<Order> deleteReceipt(@PathVariable Long id) {
+		Order order = repository.getById(id);
+		if (order == null) {
+			throw new OrderNotFoundException(id);
+		}
+
+		order.setStatus("taken");
+		order.setLinks(new ArrayList<Link>());
+		
+		repository.save(id, order);
+
+		// TODO handle Internal Server error
+
+		return new ResponseEntity<Order>(order, HttpStatus.OK);
+	}
 }

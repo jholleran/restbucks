@@ -77,9 +77,12 @@ public class CreateOrderAndPayClient {
 
 		Document ready = waitForOrderReady(xpath, ord);
 		String receiptUri = xpath.evaluate(
-				"//*[@rel=\"http://relations.restbucks.com/receipt\"]/@uri", prd);
+				"//*[@rel=\"http://relations.restbucks.com/receipt\"]/@uri", ready);
 		
-		//takeOrder(receiptUri);
+		String takeResponse = takeOrder(receiptUri);
+
+		Document trd = createDocument(takeResponse);
+		printDocument(trd);
 	}
 
 	private static Document waitForOrderReady(XPath xpath, Document ord)
@@ -190,6 +193,25 @@ public class CreateOrderAndPayClient {
 
 		put.releaseConnection();
 		return result;
+	}
+	
+	private static String takeOrder(String endpoint) throws Exception {
+		// HttpClient
+		HttpClient client = HttpClientBuilder.create().build();
+		HttpDelete delete = new HttpDelete(endpoint);
+		delete.setHeader("Content-Type", MEDIA_TYPE);
+
+		HttpResponse response = client.execute(delete);
+
+		int responseCode = response.getStatusLine().getStatusCode();
+		System.out.println("response code: " + responseCode);
+		String responseBody = EntityUtils.toString(response.getEntity());
+		// System.out.println("response body: " + responseBody);
+
+		printIfError(responseCode);
+
+		delete.releaseConnection();
+		return responseBody;
 	}
 
 	private static void printIfError(int responseCode) {
