@@ -19,6 +19,10 @@ import org.apache.http.util.EntityUtils;
 import org.w3c.dom.Document;
 import org.xml.sax.*;
 
+/**
+ * @author HolleranJ
+ *
+ */
 public class CreateOrderAndPayClient {
 
 	private static final String SELF = "self";
@@ -30,7 +34,7 @@ public class CreateOrderAndPayClient {
 	private static final String RECEIPT_URI = "http://relations.restbucks.com/receipt";
 
 	private static final String MEDIA_TYPE = "application/vnd.restbucks+xml";
-
+j
 	private XPathFactory xpathFactory = XPathFactory.newInstance();
 	private XPath xpath = xpathFactory.newXPath();
 
