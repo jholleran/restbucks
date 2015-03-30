@@ -177,6 +177,30 @@ public class OrderController {
 		// TODO handle Internal Server error
 	}
 	
+	@RequestMapping(value = "receipt/{id}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Receipt> getReceipt(@PathVariable Long id) {
+		Order order = repository.getById(id);
+		if (order == null) {
+			throw new OrderNotFoundException(id);
+		}
+
+		String orderUri = buildUri(id, "/api/order/{id}").toString();
+		List<Link> links = new ArrayList<Link>();
+		links.add(new Link(orderUri, MEDIA_TYPE,
+				"http://relations.restbucks.com/order"));
+		
+		//TODO verify payment before giving receipt
+		Receipt receipt = new Receipt();
+		receipt.setAmount(order.getCost());
+		receipt.setPaid(new Date());
+		receipt.setLinks(links);
+
+		// TODO handle Internal Server error
+
+		return new ResponseEntity<Receipt>(receipt, HttpStatus.OK);
+	}
+	
 	@RequestMapping(value = "receipt/{id}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public ResponseEntity<Order> deleteReceipt(@PathVariable Long id) {

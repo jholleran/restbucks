@@ -67,15 +67,27 @@ public class CreateOrderAndPayClient {
 		Document prd = createDocument(paymentResponse);
 		printDocument(prd);
 
+
+		String receipt = xpath.evaluate(
+				"//*[@rel=\"http://relations.restbucks.com/receipt\"]/@uri", prd);
+		
+		System.out.println("Getting the Receipt.");
+		String receiptResponse = callGet(receipt);
+		
+		Document rrd = createDocument(receiptResponse);
+		printDocument(rrd);
+		
+		
 		String orderUri = xpath.evaluate(
-				"//*[@rel=\"http://relations.restbucks.com/order\"]/@uri", prd);
+				"//*[@rel=\"http://relations.restbucks.com/order\"]/@uri", rrd);
 
 		System.out.println("Reading the Order.");
-		String orderResponse = readOrder(orderUri);
+		String orderResponse = callGet(orderUri);
 		Document ord = createDocument(orderResponse);
 		printDocument(ord);
 
 		Document ready = waitForOrderReady(xpath, ord);
+		
 		String receiptUri = xpath.evaluate(
 				"//*[@rel=\"http://relations.restbucks.com/receipt\"]/@uri", ready);
 		
@@ -95,7 +107,7 @@ public class CreateOrderAndPayClient {
 		String orderUri1 = xpath.evaluate("//*[@rel=\"self\"]/@uri", ord);
 		//System.out.println(orderUri1);
 		if (orderUri1 != null && !"".equals(orderUri1.trim())) {
-			String orderResponse1 = readOrder(orderUri1);
+			String orderResponse1 = callGet(orderUri1);
 			Document ord1 = createDocument(orderResponse1);
 			printDocument(ord1);
 			return waitForOrderReady(xpath, ord1);
@@ -154,7 +166,7 @@ public class CreateOrderAndPayClient {
 		return responseBody;
 	}
 
-	private static String readOrder(String endpoint) throws Exception {
+	private static String callGet(String endpoint) throws Exception {
 		// HttpClient
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpGet get = new HttpGet(endpoint);
@@ -194,6 +206,7 @@ public class CreateOrderAndPayClient {
 		put.releaseConnection();
 		return result;
 	}
+	
 	
 	private static String takeOrder(String endpoint) throws Exception {
 		// HttpClient
