@@ -21,13 +21,101 @@ import org.xml.sax.*;
 
 public class CreateOrderAndPayClient {
 
+	private static final String SELF = "self";
+
+	private static final String PAYMENT_URI = "http://relations.restbucks.com/payment";
+
+	private static final String ORDER_URI = "http://relations.restbucks.com/order";
+
+	private static final String RECEIPT_URI = "http://relations.restbucks.com/receipt";
+
 	private static final String MEDIA_TYPE = "application/vnd.restbucks+xml";
+
+	private XPathFactory xpathFactory = XPathFactory.newInstance();
+	private XPath xpath = xpathFactory.newXPath();
 
 	/**
 	 * @param args
 	 * @throws Exception
 	 */
 	public static void main(String[] args) throws Exception {
+		new CreateOrderAndPayClient().runClient();
+	}
+
+	private void runClient() throws Exception {
+		Document orderResponseDoc = createOrder();
+
+		Document prd = payForOrder(orderResponseDoc);
+
+		Document rrd = getReceipt(prd);
+
+		Document ord = getOrder(rrd);
+
+		Document ready = waitForOrderReady(ord);
+
+		takeOrder(ready);
+	}
+
+	private void takeOrder(Document ready) throws Exception {
+		String uri = RECEIPT_URI;
+		String receiptUri = find(ready, uri);
+
+		String takeResponse = takeOrder(receiptUri);
+
+		Document trd = createDocument(takeResponse);
+		printDocument(trd);
+	}
+
+	private Document getOrder(Document rrd) throws Exception {
+		String orderUri = find(rrd, ORDER_URI);
+
+		System.out.println("Reading the Order.");
+		String orderResponse = callGet(orderUri);
+		Document ord = createDocument(orderResponse);
+		printDocument(ord);
+		return ord;
+	}
+
+	private Document getReceipt(Document prd) throws Exception,
+			TransformerFactoryConfigurationError, TransformerException {
+		String receipt = find(prd, RECEIPT_URI);
+
+		System.out.println("Getting the Receipt.");
+		String receiptResponse = callGet(receipt);
+
+		Document rrd = createDocument(receiptResponse);
+		printDocument(rrd);
+		return rrd;
+	}
+
+	private Document payForOrder(Document document) throws Exception {
+		String paymentUri = find(document, PAYMENT_URI);
+
+		String payment = "<ns3:payment xmlns=\"http://schemas.restbucks.com\" xmlns:ns3=\"http://schemas.restbucks.com/payment\">"
+				+ "<amount>5.00</amount>"
+				+ "<cardHolderName>Michael Faraday</cardHolderName>"
+				+ "<cardNumber>11223344</cardNumber>"
+				+ "<expiryMonth>12</expiryMonth>"
+				+ "<expiryYear>12</expiryYear>" + "</ns3:payment>";
+
+		System.out.println("Paying for Order.");
+		String paymentResponse = callPut(paymentUri, payment);
+
+		Document prd = createDocument(paymentResponse);
+		printDocument(prd);
+		return prd;
+	}
+
+	private String find(Document document, String uri)
+			throws XPathExpressionException {
+		return xpath.evaluate(
+				"//*[@rel=\""
+				+ uri
+				+ "\"]/@uri",
+				document);
+	}
+
+	private Document createOrder() throws Exception {
 		String xml = "<order xmlns=\"http://schemas.restbucks.com\">"
 				+ "<items>" + "<item>" + "<milk>whole</milk>"
 				+ "<name>latte</name>" + "<quantity>1</quantity>"
@@ -40,77 +128,28 @@ public class CreateOrderAndPayClient {
 		String endpoint = "http://localhost:8080/restbucks/web/api/order";
 
 		System.out.println("Creating an Order.");
-		String response = createOrder(endpoint, xml);
+		String response = callPost(endpoint, xml);
 
 		Document document = createDocument(response);
-
-		XPathFactory xpathFactory = XPathFactory.newInstance();
-		XPath xpath = xpathFactory.newXPath();
-
 		printDocument(document);
-
-		String paymentUri = xpath.evaluate(
-				"//*[@rel=\"http://relations.restbucks.com/payment\"]/@uri",
-				document);
-		// TODO read correct payment endpoint
-
-		String payment = "<ns3:payment xmlns=\"http://schemas.restbucks.com\" xmlns:ns3=\"http://schemas.restbucks.com/payment\">"
-				+ "<amount>5.00</amount>"
-				+ "<cardHolderName>Michael Faraday</cardHolderName>"
-				+ "<cardNumber>11223344</cardNumber>"
-				+ "<expiryMonth>12</expiryMonth>"
-				+ "<expiryYear>12</expiryYear>" + "</ns3:payment>";
-
-		System.out.println("Paying for Order.");
-		String paymentResponse = payForOrder(paymentUri, payment);
-
-		Document prd = createDocument(paymentResponse);
-		printDocument(prd);
-
-
-		String receipt = xpath.evaluate(
-				"//*[@rel=\"http://relations.restbucks.com/receipt\"]/@uri", prd);
-		
-		System.out.println("Getting the Receipt.");
-		String receiptResponse = callGet(receipt);
-		
-		Document rrd = createDocument(receiptResponse);
-		printDocument(rrd);
-		
-		
-		String orderUri = xpath.evaluate(
-				"//*[@rel=\"http://relations.restbucks.com/order\"]/@uri", rrd);
-
-		System.out.println("Reading the Order.");
-		String orderResponse = callGet(orderUri);
-		Document ord = createDocument(orderResponse);
-		printDocument(ord);
-
-		Document ready = waitForOrderReady(xpath, ord);
-		
-		String receiptUri = xpath.evaluate(
-				"//*[@rel=\"http://relations.restbucks.com/receipt\"]/@uri", ready);
-		
-		String takeResponse = takeOrder(receiptUri);
-
-		Document trd = createDocument(takeResponse);
-		printDocument(trd);
+		return document;
 	}
 
-	private static Document waitForOrderReady(XPath xpath, Document ord)
+	private Document waitForOrderReady(Document ord)
 			throws InterruptedException, XPathExpressionException, Exception,
 			ParserConfigurationException, SAXException, IOException,
 			TransformerConfigurationException,
 			TransformerFactoryConfigurationError, TransformerException {
 		Thread.sleep(2000);
 
-		String orderUri1 = xpath.evaluate("//*[@rel=\"self\"]/@uri", ord);
-		//System.out.println(orderUri1);
+		String orderUri1 = find(ord, SELF);
+		
+		// System.out.println(orderUri1);
 		if (orderUri1 != null && !"".equals(orderUri1.trim())) {
 			String orderResponse1 = callGet(orderUri1);
 			Document ord1 = createDocument(orderResponse1);
 			printDocument(ord1);
-			return waitForOrderReady(xpath, ord1);
+			return waitForOrderReady(ord1);
 		}
 		return ord;
 	}
@@ -138,7 +177,7 @@ public class CreateOrderAndPayClient {
 		System.out.println(xmlString);
 	}
 
-	private static String createOrder(String endpoint, String orderXml)
+	private static String callPost(String endpoint, String orderXml)
 			throws UnsupportedEncodingException, IOException,
 			ClientProtocolException {
 		// HttpClient
@@ -185,7 +224,7 @@ public class CreateOrderAndPayClient {
 		return responseBody;
 	}
 
-	private static String payForOrder(String orderUri, String paymentXml)
+	private static String callPut(String orderUri, String paymentXml)
 			throws Exception {
 		// HttpClient
 		HttpClient client = HttpClientBuilder.create().build();
@@ -206,8 +245,7 @@ public class CreateOrderAndPayClient {
 		put.releaseConnection();
 		return result;
 	}
-	
-	
+
 	private static String takeOrder(String endpoint) throws Exception {
 		// HttpClient
 		HttpClient client = HttpClientBuilder.create().build();
