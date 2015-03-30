@@ -75,10 +75,14 @@ public class CreateOrderAndPayClient {
 		Document ord = createDocument(orderResponse);
 		printDocument(ord);
 
-		waitForOrderReady(xpath, ord);
+		Document ready = waitForOrderReady(xpath, ord);
+		String receiptUri = xpath.evaluate(
+				"//*[@rel=\"http://relations.restbucks.com/receipt\"]/@uri", prd);
+		
+		//takeOrder(receiptUri);
 	}
 
-	private static void waitForOrderReady(XPath xpath, Document ord)
+	private static Document waitForOrderReady(XPath xpath, Document ord)
 			throws InterruptedException, XPathExpressionException, Exception,
 			ParserConfigurationException, SAXException, IOException,
 			TransformerConfigurationException,
@@ -91,8 +95,9 @@ public class CreateOrderAndPayClient {
 			String orderResponse1 = readOrder(orderUri1);
 			Document ord1 = createDocument(orderResponse1);
 			printDocument(ord1);
-			waitForOrderReady(xpath, ord1);
+			return waitForOrderReady(xpath, ord1);
 		}
+		return ord;
 	}
 
 	private static Document createDocument(String response)
