@@ -39,36 +39,60 @@ public class CreateOrderAndPayClient {
 
 		String endpoint = "http://localhost:8080/restbucks/web/api/order";
 
+		System.out.println("Creating an Order.");
 		String response = createOrder(endpoint, xml);
-		
+
 		Document document = createDocument(response);
 
 		XPathFactory xpathFactory = XPathFactory.newInstance();
 		XPath xpath = xpathFactory.newXPath();
-		
+
 		printDocument(document);
-		
-		String paymentUri = xpath.evaluate("//*[@rel=\"http://relations.restbucks.com/payment\"]/@uri", document);
-		//TODO read correct payment endpoint
+
+		String paymentUri = xpath.evaluate(
+				"//*[@rel=\"http://relations.restbucks.com/payment\"]/@uri",
+				document);
+		// TODO read correct payment endpoint
 
 		String payment = "<ns3:payment xmlns=\"http://schemas.restbucks.com\" xmlns:ns3=\"http://schemas.restbucks.com/payment\">"
 				+ "<amount>5.00</amount>"
 				+ "<cardHolderName>Michael Faraday</cardHolderName>"
 				+ "<cardNumber>11223344</cardNumber>"
 				+ "<expiryMonth>12</expiryMonth>"
-				+ "<expiryYear>12</expiryYear>"
-				+ "</ns3:payment>";
+				+ "<expiryYear>12</expiryYear>" + "</ns3:payment>";
 
+		System.out.println("Paying for Order.");
 		String paymentResponse = payForOrder(paymentUri, payment);
-		
+
 		Document prd = createDocument(paymentResponse);
 		printDocument(prd);
-		
-		String orderUri = xpath.evaluate("//*[@rel=\"http://relations.restbucks.com/order\"]/@uri", prd);
-		
+
+		String orderUri = xpath.evaluate(
+				"//*[@rel=\"http://relations.restbucks.com/order\"]/@uri", prd);
+
+		System.out.println("Reading the Order.");
 		String orderResponse = readOrder(orderUri);
 		Document ord = createDocument(orderResponse);
 		printDocument(ord);
+
+		waitForOrderReady(xpath, ord);
+	}
+
+	private static void waitForOrderReady(XPath xpath, Document ord)
+			throws InterruptedException, XPathExpressionException, Exception,
+			ParserConfigurationException, SAXException, IOException,
+			TransformerConfigurationException,
+			TransformerFactoryConfigurationError, TransformerException {
+		Thread.sleep(2000);
+
+		String orderUri1 = xpath.evaluate("//*[@rel=\"self\"]/@uri", ord);
+		//System.out.println(orderUri1);
+		if (orderUri1 != null && !"".equals(orderUri1.trim())) {
+			String orderResponse1 = readOrder(orderUri1);
+			Document ord1 = createDocument(orderResponse1);
+			printDocument(ord1);
+			waitForOrderReady(xpath, ord1);
+		}
 	}
 
 	private static Document createDocument(String response)
@@ -83,9 +107,10 @@ public class CreateOrderAndPayClient {
 	private static void printDocument(Document document)
 			throws TransformerConfigurationException,
 			TransformerFactoryConfigurationError, TransformerException {
-		Transformer transformer = TransformerFactory.newInstance().newTransformer();
+		Transformer transformer = TransformerFactory.newInstance()
+				.newTransformer();
 		transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-		//initialize StreamResult with File object to save to file
+		// initialize StreamResult with File object to save to file
 		StreamResult result = new StreamResult(new StringWriter());
 		DOMSource source = new DOMSource(document);
 		transformer.transform(source, result);
@@ -108,21 +133,20 @@ public class CreateOrderAndPayClient {
 		int responseCode = response.getStatusLine().getStatusCode();
 		System.out.println("response code: " + responseCode);
 		String responseBody = EntityUtils.toString(response.getEntity());
-		System.out.println("response body: " + responseBody);
+		// System.out.println("response body: " + responseBody);
 
 		if (responseCode == 201) {
 			String orderUri = response.getHeaders("Location")[0].getValue();
 			System.out.println("Location: " + orderUri);
-		} 
-		
+		}
+
 		printIfError(responseCode);
 
 		post.releaseConnection();
 		return responseBody;
 	}
 
-	private static String readOrder(String endpoint)
-			throws Exception {
+	private static String readOrder(String endpoint) throws Exception {
 		// HttpClient
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpGet get = new HttpGet(endpoint);
@@ -133,15 +157,14 @@ public class CreateOrderAndPayClient {
 		int responseCode = response.getStatusLine().getStatusCode();
 		System.out.println("response code: " + responseCode);
 		String responseBody = EntityUtils.toString(response.getEntity());
-		System.out.println("response body: " + responseBody);
+		// System.out.println("response body: " + responseBody);
 
-		
 		printIfError(responseCode);
 
 		get.releaseConnection();
 		return responseBody;
 	}
-	
+
 	private static String payForOrder(String orderUri, String paymentXml)
 			throws Exception {
 		// HttpClient
@@ -156,7 +179,7 @@ public class CreateOrderAndPayClient {
 		int responseCode = response.getStatusLine().getStatusCode();
 		System.out.println("response code: " + responseCode);
 		String result = EntityUtils.toString(response.getEntity());
-		System.out.println("response body: " + result);
+		// System.out.println("response body: " + result);
 
 		printIfError(responseCode);
 
@@ -168,12 +191,12 @@ public class CreateOrderAndPayClient {
 		if (responseCode == 400) {
 			// throw new BadRequestException();
 			System.out
-			.println("If we get a 400 response, the caller's gone wrong");
+					.println("If we get a 400 response, the caller's gone wrong");
 		} else if (responseCode == 500 || responseCode == 503) {
 			// throw new
 			// ServerFailureException(post.getResponseHeader("Retry-After"));
 			System.out
-			.println("If we get a 5xx response, the caller may retry");
+					.println("If we get a 5xx response, the caller may retry");
 		}
 	}
 }

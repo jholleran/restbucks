@@ -28,12 +28,14 @@ public class OrderController {
 
 	private OrderRepository repository;
 	private PaymentProcessor paymentProcessor;
+	private Barista barista;
 
 	@Autowired
 	public OrderController(OrderRepository repository,
-			PaymentProcessor paymentProcessor) {
+			PaymentProcessor paymentProcessor, Barista barista) {
 		this.repository = repository;
 		this.paymentProcessor = paymentProcessor;
+		this.barista = barista;
 	}
 
 	@RequestMapping("order/{id}")
@@ -159,6 +161,7 @@ public class OrderController {
 			order.setLinks(orderLinks);
 
 			repository.save(id, order);
+			barista.process(order);
 
 			String receiptUri = buildUri(id, "/api/receipt/{id}").toString();
 			List<Link> links = new ArrayList<Link>();
