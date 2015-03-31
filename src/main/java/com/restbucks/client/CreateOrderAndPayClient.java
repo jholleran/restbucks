@@ -34,7 +34,7 @@ public class CreateOrderAndPayClient {
 	private static final String RECEIPT_URI = "http://relations.restbucks.com/receipt";
 
 	private static final String MEDIA_TYPE = "application/vnd.restbucks+xml";
-j
+
 	private XPathFactory xpathFactory = XPathFactory.newInstance();
 	private XPath xpath = xpathFactory.newXPath();
 
